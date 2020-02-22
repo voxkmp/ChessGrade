@@ -7,7 +7,7 @@ Class {
 	#instVars : [
 		'grade'
 	],
-	#category : #'KMP-ChessGradeConversion'
+	#category : #'KMP-ChessGradeConversion-Core'
 }
 
 { #category : #access }
