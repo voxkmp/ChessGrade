@@ -13,7 +13,11 @@ Class {
 		'txtElo',
 		'txtEcf',
 		'imgChess',
-		'toolbarGradingButtons'
+		'toolbarGradingButtons',
+		'btnIncreaseSmall',
+		'btnIncreaseLarge',
+		'btnDecreaseSmall',
+		'btnDecreaseLarge'
 	],
 	#category : #'KMP-ChessGradeConversion-Ui'
 }
@@ -27,9 +31,11 @@ ChessGradeConverter class >> defaultSpec [
 		add:
 			(SpGridLayout new
 				beColumnNotHomogeneous;
-				beRowHomogeneous;
+				beRowNotHomogeneous;
+				rowSpacing:40;
 				column: 1 withConstraints: [ :c | c beExpand ];
 				column: 2 withConstraints: [ :c | c beNotExpand ];
+				row:3 withConstraints: [ :constraint | constraint expand: false];
 				add: #lblEcf at: 1 @ 1;
 				add: #txtEcf at: 2 @ 1;
 				add: #lblElo at: 1 @ 2;
@@ -39,11 +45,46 @@ ChessGradeConverter class >> defaultSpec [
 		yourself
 ]
 
+{ #category : #accessing }
+ChessGradeConverter >> btnDecreaseLarge [
+	^ btnDecreaseLarge
+]
+
+{ #category : #accessing }
+ChessGradeConverter >> btnDecreaseSmall [
+	^ btnDecreaseSmall
+]
+
+{ #category : #accessing }
+ChessGradeConverter >> btnIncreaseLarge [
+	^ btnIncreaseLarge
+]
+
+{ #category : #accessing }
+ChessGradeConverter >> btnIncreaseSmall [
+	^ btnIncreaseSmall
+]
+
 { #category : #initialization }
 ChessGradeConverter >> connectPresenters [
 	self txtEcf
-		whenTextChangedDo: [ self model ecf: self txtEcf text asInteger.
-			self announcingObject valueChanged ]
+		whenTextChangedDo: [ self setGradeEcf: txtEcf text asInteger ].
+	self btnDecreaseLarge action:[self decreaseGradeLarge].
+	self btnDecreaseSmall action:[self decreaseGradeSmall].
+	self btnIncreaseLarge action:[self increaseGradeLarge].
+	self btnIncreaseSmall action:[self increaseGradeSmall].
+]
+
+{ #category : #'model - updating' }
+ChessGradeConverter >> decreaseGradeLarge [
+	self model ecf: self model asEcf - 10.
+	self announcingObject valueChanged
+]
+
+{ #category : #'model - updating' }
+ChessGradeConverter >> decreaseGradeSmall [
+	self model ecf: self model asEcf - 1.
+	self announcingObject valueChanged
 ]
 
 { #category : #'model - updating' }
@@ -57,6 +98,19 @@ ChessGradeConverter >> imgChess [
 	^ imgChess
 ]
 
+{ #category : #'model - updating' }
+ChessGradeConverter >> increaseGradeLarge [
+	self model ecf: self model asEcf + 10.
+	self announcingObject valueChanged
+]
+
+{ #category : #'model - updating' }
+ChessGradeConverter >> increaseGradeSmall [
+	self model ecf: self model asEcf + 1.
+	self announcingObject valueChanged
+
+]
+
 { #category : #initialization }
 ChessGradeConverter >> initialize [
 	self model: ChessGrade new.
@@ -64,44 +118,60 @@ ChessGradeConverter >> initialize [
 ]
 
 { #category : #initialization }
-ChessGradeConverter >> initializePresenters [
-	lblEcf := self newLabel label: 'ECf grade'.
-	lblElo := self newLabel label: 'Elo grade'.
-	txtEcf := self newTextInput.
-	txtElo := self newTextInput.
-	toolbarGradingButtons := self newToolBar
-	   beText;
-		addItem:
-			(SpToolBarButton new
-				label: '<<';
-				icon: (self iconNamed: #back);
-				help: 'Back 10 points';
-				action: [ self inform: 'back 10 points']; 
-				yourself);
-		addItem:
-			(SpToolBarButton new
-				label: '<';
-				icon: (self iconNamed: #back);
-				help: 'Back one point';
-				action: [ self inform: 'back one point' ];
-				yourself);
-				addItem:
-			(SpToolBarButton new
-				label: '>';
-				icon: (self iconNamed: #forward);
-				help: 'Forward one point';
-				action: [ self inform: 'forward one point']; 
-				yourself);
-		addItem:
-			(SpToolBarButton new
-				label: '>>';
-				icon: (self iconNamed: #forward);
-				help: 'Forward 10 points';
-				action: [ self inform: 'forward 10 points' ];
-				yourself);
-		yourself.
+ChessGradeConverter >> initializeButtons [
+	btnDecreaseLarge := SpToolBarButton new
+		label: '<<';
+		help: 'Down 10 points'.
+	btnDecreaseSmall := SpToolBarButton new
+		label: '<';
+		help: 'Down one point'.
+	btnIncreaseSmall := SpToolBarButton new
+		label: '>';
+		help: 'Up one point'.
+	btnIncreaseLarge := SpToolBarButton new
+		label: '>>';
+		help: 'Up 10 points'
+]
+
+{ #category : #initialization }
+ChessGradeConverter >> initializeImage [
 	imgChess := self newImage.
 	imgChess image: (ImageReadWriter formFromFileNamed: 'chess.jpeg')
+
+
+]
+
+{ #category : #initialization }
+ChessGradeConverter >> initializeLabels [
+	lblEcf := self newLabel label: 'ECf grade'.
+	lblElo := self newLabel label: 'Elo grade'
+]
+
+{ #category : #initialization }
+ChessGradeConverter >> initializePresenters [
+	self initializeLabels.
+	self initializeTextInputs.
+	self initializeButtons.
+	self initializeToolbar.
+	self initializeImage.
+	
+]
+
+{ #category : #initialization }
+ChessGradeConverter >> initializeTextInputs [
+	txtEcf := self newTextInput.
+	txtElo := self newTextInput.
+]
+
+{ #category : #initialization }
+ChessGradeConverter >> initializeToolbar [
+	toolbarGradingButtons := self newToolBar
+		beText;
+		addItem: btnDecreaseLarge;
+		addItem: btnDecreaseSmall;
+		addItem: btnIncreaseSmall;
+		addItem: btnIncreaseLarge;
+		yourself.
 ]
 
 { #category : #initialization }
@@ -127,6 +197,12 @@ ChessGradeConverter >> lblElo [
 { #category : #'model - updating' }
 ChessGradeConverter >> modelChanged [
 	self fillFormWithWorkingModel
+]
+
+{ #category : #'model - updating' }
+ChessGradeConverter >> setGradeEcf: newGrade [
+	self model ecf: newGrade.
+	self announcingObject valueChanged
 ]
 
 { #category : #accessing }

@@ -38,5 +38,5 @@ ChessGrade >> elo: aGrading [
 { #category : #initialization }
 ChessGrade >> initialize [
 	super initialize.
-	grade := 1000.
+	self ecf: 100.
 ]
