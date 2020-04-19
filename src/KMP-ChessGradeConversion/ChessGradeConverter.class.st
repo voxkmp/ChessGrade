@@ -28,20 +28,32 @@ ChessGradeConverter class >> defaultSpec [
 		borderWidth: 10;
 		spacing: 10;
 		add: #imgChess expand: false;
-		add:
-			(SpGridLayout new
-				beColumnNotHomogeneous;
-				beRowNotHomogeneous;
-				rowSpacing:40;
-				column: 1 withConstraints: [ :c | c beExpand ];
-				column: 2 withConstraints: [ :c | c beNotExpand ];
-				row:3 withConstraints: [ :constraint | constraint expand: false];
-				add: #lblEcf at: 1 @ 1;
-				add: #txtEcf at: 2 @ 1;
-				add: #lblElo at: 1 @ 2;
-				add: #txtElo at: 2 @ 2;
-				add: #toolbarGradingButtons at: 1 @ 3 span: 2 @ 3;
-				yourself);
+		add: self mainFormSpec expand: true;
+		yourself
+]
+
+{ #category : #specs }
+ChessGradeConverter class >> labelsAndTextBoxesSpec [
+	^ SpGridLayout new
+		beColumnNotHomogeneous;
+		beRowHomogeneous;
+		rowSpacing: 20;
+		column: 1 withConstraints: [ :c | c beExpand ];
+		column: 2 withConstraints: [ :c | c beNotExpand ];
+		add: #lblEcf at: 1 @ 1;
+		add: #txtEcf at: 2 @ 1;
+		add: #lblElo at: 1 @ 2;
+		add: #txtElo at: 2 @ 2;
+		yourself
+]
+
+{ #category : #specs }
+ChessGradeConverter class >> mainFormSpec [
+	^ SpBoxLayout newVertical
+		borderWidth: 10;
+		spacing: 10;
+		add: self labelsAndTextBoxesSpec expand: true;
+		add: #toolbarGradingButtons  expand: false;
 		yourself
 ]
 
@@ -68,7 +80,7 @@ ChessGradeConverter >> btnIncreaseSmall [
 { #category : #initialization }
 ChessGradeConverter >> connectPresenters [
 	self txtEcf
-		whenTextChangedDo: [ self setGradeEcf: txtEcf text asInteger ].
+		whenTextChangedDo: [ (self txtEcf text isEmptyOrNil ) ifTrue:[] ifFalse:[self setGradeEcf: txtEcf text asInteger ]].
 	self btnDecreaseLarge action:[self decreaseGradeLarge].
 	self btnDecreaseSmall action:[self decreaseGradeSmall].
 	self btnIncreaseLarge action:[self increaseGradeLarge].
@@ -119,16 +131,16 @@ ChessGradeConverter >> initialize [
 
 { #category : #initialization }
 ChessGradeConverter >> initializeButtons [
-	btnDecreaseLarge := SpToolBarButton new
+	btnDecreaseLarge := SpToolBarButtonPresenter new
 		label: '<<';
 		help: 'Down 10 points'.
-	btnDecreaseSmall := SpToolBarButton new
+	btnDecreaseSmall := SpToolBarButtonPresenter new
 		label: '<';
 		help: 'Down one point'.
-	btnIncreaseSmall := SpToolBarButton new
+	btnIncreaseSmall := SpToolBarButtonPresenter new
 		label: '>';
 		help: 'Up one point'.
-	btnIncreaseLarge := SpToolBarButton new
+	btnIncreaseLarge := SpToolBarButtonPresenter new
 		label: '>>';
 		help: 'Up 10 points'
 ]
@@ -166,7 +178,6 @@ ChessGradeConverter >> initializeTextInputs [
 { #category : #initialization }
 ChessGradeConverter >> initializeToolbar [
 	toolbarGradingButtons := self newToolBar
-		beText;
 		addItem: btnDecreaseLarge;
 		addItem: btnDecreaseSmall;
 		addItem: btnIncreaseSmall;
@@ -178,7 +189,7 @@ ChessGradeConverter >> initializeToolbar [
 ChessGradeConverter >> initializeWindow: aWindowPresenter [
 	aWindowPresenter
 		title: 'Converter for Chess Grades';
-		initialExtent: 420@280;
+		initialExtent: 460 @ 320;
 		windowIcon: self windowIcon;
 		askOkToClose: false;
 		aboutText: 'Small tool to convert chess grades from ELO to ECF and vice versa'
