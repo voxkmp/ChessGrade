@@ -5,6 +5,14 @@ Class {
 }
 
 { #category : #tests }
+ChessGradeTest >> testEcfToElo [
+	| g |
+	g := ChessGrade new.
+	g ecf: 100.
+	self assert: g asElo equals: 1450
+]
+
+{ #category : #tests }
 ChessGradeTest >> testEloToEcf [
 	|g|
 	g:= ChessGrade new.
